@@ -1,0 +1,52 @@
+# Common functions
+
+{%- macro debsource(reponame, url, distribution, components, keyfilename=None, archs=[], with_src=False) %}
+{%- set opts_list=[] %}
+{%- set opts="" %}
+{%- if (archs | length) > 0 %}
+{%-   do opts_list.append("arch=" ~ archs | join(","))%}
+{%- endif %}
+{%- if keyfilename %}
+{%-   do opts_list.append("signed-by=/usr/share/keyrings/" ~ keyfilename) %}
+/usr/share/keyrings/{{ keyfilename }}:
+  file.managed:
+    - source: {{ relfile(keyfilename) }}
+{%- endif %}
+
+{%- if (opts_list | length) > 0 %}
+{%-   set opts= "[" ~ (opts_list | join(" ")) ~ "] "%}
+{%- endif %}
+{{ reponame }} repository:
+  pkgrepo.managed:
+    - name: deb {{opts}}{{ proxysource(url) }} {{ distribution }} {{ components }}
+    - file: /etc/apt/sources.list.d/{{ reponame }}.list
+    - clean_file: true
+{%- if keyfilename %}
+    - require:
+      - file: /usr/share/keyrings/{{ keyfilename }}
+{%- endif %}
+
+{%- if with_src %}
+{{ reponame }}-src repository:
+  pkgrepo.managed:
+    - name: deb-src {{opts}}{{ proxysource(url) }} {{ distribution }} {{ components }}
+    - file: /etc/apt/sources.list.d/{{ reponame }}-src.list
+    - clean_file: true
+{%-   if keyfilename %}
+    - require:
+      - file: /usr/share/keyrings/{{ keyfilename }}
+{%-   endif %}
+{%- endif %}
+{%- endmacro %}
+
+{% macro relfile(fname) -%}
+{{ 'salt://' ~ slspath ~ '/files/' ~ fname }}
+{%- endmacro %}
+
+{% macro proxysource(source) -%}
+{%- if salt['pillar.get']('apt-proxy:url') and source.startswith('https') -%}
+{{ salt['pillar.get']('apt-proxy:url') ~ '/HTTPS///' ~source[8:]}}
+{%- else -%}
+{{ source }}
+{%- endif -%}
+{%- endmacro %}

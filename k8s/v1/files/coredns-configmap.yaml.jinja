@@ -1,0 +1,25 @@
+apiVersion: v1
+data:
+  Corefile: |
+    .:53 {
+        errors
+        health
+        kubernetes {{ salt['pillar.get']("k8s:networking:dnsDomainExternal") }} in-addr.arpa ip6.arpa {
+            transfer to *
+            pods insecure
+            upstream
+            fallthrough in-addr.arpa ip6.arpa
+            ttl 30
+        }
+        prometheus :9153
+        forward . /etc/resolv.conf
+        cache 30
+        loop
+        reload
+        loadbalance
+    }
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  name: coredns
+  selfLink: /api/v1/namespaces/kube-system/configmaps/coredns

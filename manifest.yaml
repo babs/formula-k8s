@@ -1,0 +1,27 @@
+kind: SaltFormulaManifest
+apiVersion: v1
+name: k8s
+summary: Formula to install kubernetes cluster, control plane and worker
+description: |
+    Formula to install kubernetes cluster, control plane and worker.
+    
+    Goal of this formula is to bootstrap a kubernetes cluster with a given version for the first CP then be able to add masters and workers taking the version from the main CP.
+    
+    This way, the cluster can have its own lifecycle and still be able to grow using this formula.
+
+keywords:
+  - kubernetes
+  - k8s
+  - cilium
+minimum_version: '3005.1'
+last_review_date: 2023-02-08
+os_family: Debian
+orch: []
+require: []
+compatibility matrix:
+  - components: 
+    - name: kubernetes
+      version: "1.21+"
+    os:
+    - name: Debian
+      versions: ["10", "11"]

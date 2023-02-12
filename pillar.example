@@ -1,0 +1,114 @@
+# https://dl.k8s.io/release/stable.txt
+k8s:
+  # Version of packages to use, used only to bootstrap the first control plane.
+  # All other nodes (cp or worker) will gather the version from the main control plane.
+  # This allows the cluster to be updated by any means and still be able to add new worker or master to it.
+  #
+  # without v and with -00 appended, ex: v1.26.1 => 1.26.1-00
+  version: 1.26.1-00
+
+  cluster_name: k8s01
+
+  # list of control-plane(s)
+  # only the first one need an IP
+  control-plane:
+    - name: k8s01-m01
+      ip: 192.168.0.11
+    - name: k8s01-m02
+    - name: k8s01-m03
+
+  # regexp pattern to identify worker nodes
+  # this allow auto deployment of workers based on host grain
+  worker pattern: k8s01-w\d+
+
+  # This extra kubeadm (--skip-phases=addon/kube-proxy) option is for cilium kube-proxy full replacement
+  kubeadm:
+    extraOptions: '--skip-phases=addon/kube-proxy'
+  cni:
+    provider: cilium
+
+  networking:
+    # VIP used to address API (primary control plane)
+    #  good practice is to define it even if only a single master is expected
+    #  this allows to add masters later on seamlessly
+    vip: 192.168.0.10
+    # Cluster internal name, changing it might be an issue for some operators and/or hardcoded in apps
+    dnsDomain: cluster.local
+    dnsDomainExternal: k8s01.my-company.com
+    # Currently only cilium cni has been fully tested in dual stack v4 and v6
+    # Any helm deployable CNI can be used using helm section below
+    # Pod subnet is the pool from wich pods ip are taken from
+    # Subdivised per node
+    podSubnet: 
+      v4: 10.0.0.0/16
+      # v6: fd12:3456:789a:1:0:ffff:180:0/105
+
+    # Service subnet is the subnet used for internal service exposure
+    serviceSubnet:
+      v4: 10.1.0.0/22
+      # v6: fd12:3456:789a:1:0:ffff:100:0/108
+
+  # Install kube dashboard
+  kube-dashboard:
+    version: v2.6.1
+
+  # some helm examples
+  helm:
+    metallb:
+      repo:
+        name: metallb 
+        url: https://metallb.github.io/metallb
+      release:
+        chart: metallb/metallb
+        namespace: metallb-system
+        flags:
+         - create-namespace
+
+    cert-manager:
+      repo:
+        name: jetstack
+        url: https://charts.jetstack.io
+      release:
+        chart: jetstack/cert-manager
+        namespace: cert-manager
+        flags:
+          - create-namespace
+        kvflags:
+          version: v1.9.1
+        set:
+          - installCRDs=true
+          - 'extraArgs={--dns01-recursive-nameservers-only,--dns01-recursive-nameservers=1.1.1.1:53\,8.8.8.8:53}'
+
+    nfs-subdir-external-provisioner:
+      repo:
+        name: nfs-subdir-external-provisioner
+        url: https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner/
+      release:
+        chart: nfs-subdir-external-provisioner/nfs-subdir-external-provisioner
+        namespace: kube-system
+        set:
+          - nfs.server=192.168.0.9
+          - nfs.path=/srv/nfs/k8s01-nfs01
+          - storageClass.defaultClass=true
+
+    traefik:
+      repo:
+        name: traefik
+        url: https://helm.traefik.io/traefik
+      release:
+        chart: traefik/traefik
+        namespace: traefik-system
+        flags:
+          - create-namespace
+        set:
+          - deployment.kind=DaemonSet
+          - ports.web.port=80
+          - ports.websecure.port=443
+          - ports.traefik.port=9000
+          - ingressRoute.dashboard.enabled=true 
+          - securityContext.capabilities.drop={ALL}
+          - securityContext.capabilities.add={NET_BIND_SERVICE}
+          - securityContext.readOnlyRootFilesystem=true
+          - securityContext.runAsGroup=0
+          - securityContext.runAsNonRoot=false
+          - securityContext.runAsUser=0

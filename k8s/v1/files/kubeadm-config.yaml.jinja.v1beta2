@@ -1,0 +1,40 @@
+{%- set mainip = salt['pillar.get']('k8s:networking:vip', salt['pillar.get']('k8s:control-plane:0:ip')) %}
+kind: ClusterConfiguration
+apiVersion: kubeadm.k8s.io/v1beta2
+apiServer:
+  certSANs:
+  - {{ mainip }}
+  - {{ salt['pillar.get']("k8s:networking:dnsDomainExternal") }}
+  timeoutForControlPlane: 4m0s
+certificatesDir: /etc/kubernetes/pki
+clusterName: {{ salt['pillar.get']("k8s:cluster_name") }}
+controlPlaneEndpoint: {{ mainip }}:6443
+controllerManager:
+  extraArgs:
+    node-monitor-grace-period: 16s
+    node-monitor-period: 2s
+    pod-eviction-timeout: 30s
+#    cluster-cidr: {{ salt['pillar.get']("k8s:networking:podSubnet").values() | list | join(',') }}
+#    service-cluster-ip-range: {{ salt['pillar.get']("k8s:networking:serviceSubnet").values() | list | join(',') }}
+#    node-cidr-mask-size-ipv4: "24"
+{%- if salt['pillar.get']("k8s:networking:podSubnet:v6") %}
+    node-cidr-mask-size-ipv6: "112"
+{%- endif %}
+dns: {}
+etcd:
+  local:
+    dataDir: /var/lib/etcd
+imageRepository: k8s.gcr.io
+networking:
+  dnsDomain: {{ salt['pillar.get']("k8s:networking:dnsDomain") }}
+#  dnsDomainExternal: {{ salt['pillar.get']("k8s:networking:dnsDomainExternal") }}
+  podSubnet: {{ salt['pillar.get']("k8s:networking:podSubnet").values() | list | join(',') }}
+  serviceSubnet:  {{ salt['pillar.get']("k8s:networking:serviceSubnet").values() | list | join(',') }}
+scheduler: {}
+---
+kind: ClusterStatus
+apiVersion: kubeadm.k8s.io/v1beta2
+apiEndpoints:
+  {{ salt['pillar.get']("k8s:networking:dnsDomainExternal") }}:
+    advertiseAddress: {{ mainip }}
+    bindPort: 6443
