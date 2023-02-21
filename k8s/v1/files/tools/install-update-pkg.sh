@@ -33,7 +33,7 @@ echo " * install..."
 apt-get install -y -q --allow-change-held-packages $(for PKG in ${UPGRADE[@]}; do echo -ne " $PKG=$DESIRED_VERSION"; done) >/dev/null
 RES=$?
 echo " * hold..."
-apt-mark hold ${PKGS[@]} >/dev/Null
+apt-mark hold ${PKGS[@]} >/dev/null
 echo " * generate completion..."
 kubectl completion bash > /etc/bash_completion.d/kube
 echo " *** done *** "
