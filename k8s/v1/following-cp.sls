@@ -1,4 +1,4 @@
-{% from './macros.jinja' import deploysshkeys, relfile, servicecmd, proxysource with context %}
+{% from slspath ~ '/macros.jinja' import deploysshkeys, relfile, servicecmd, proxysource with context %}
 
 include:
  - {{ slsdotpath }}.control-plane

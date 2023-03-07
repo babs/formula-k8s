@@ -1,5 +1,5 @@
 
-{% from './macros.jinja' import debsource with context %}
+{% from slspath ~ '/macros.jinja' import debsource with context %}
 
 {% set lower_distro = salt['grains.get']('os') | lower %}
 {{

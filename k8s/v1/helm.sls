@@ -1,4 +1,4 @@
-{% from './macros.jinja' import relfile with context %}
+{% from slspath ~ '/macros.jinja' import relfile with context %}
 
 /usr/local/sbin/get_helm.sh:
   file.managed:
