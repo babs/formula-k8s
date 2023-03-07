@@ -26,8 +26,8 @@ containerd python-toml:
     - pkgs:
       - python3-pip
   pip.installed:
-   - name: toml
-   - bin_env: '/usr/bin/pip3'
+    - name: toml
+    - bin_env: '/usr/bin/pip3'
 
 containerd:
   pkg.installed:
@@ -37,7 +37,7 @@ containerd:
   service.running:
     - enable: true
     - require:
-       - pkg: containerd
+      - pkg: containerd
 
 /etc/containerd/config.toml:
   cmd.run:

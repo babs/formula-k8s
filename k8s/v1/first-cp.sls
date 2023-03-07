@@ -1,8 +1,8 @@
 {% from slspath ~ '/macros.jinja' import relfile, debsource with context %}
-{% set version = salt['pillar.get']('k8s:version', '1.23.4-00')%}
+{% set version = salt['pillar.get']('k8s:version', '1.23.4-00') %}
 
 include:
- - {{ slsdotpath }}.control-plane
+- {{ slsdotpath }}.control-plane
 
 /etc/kubernetes/kubeadm/kubeadm-config.yaml:
   file.managed:
@@ -11,7 +11,7 @@ include:
     - makedirs: True
     - user: root
     - group: root
-    - mode: 644
+    - mode: "0644"
 
 /opt/k8s-tools/install-update-pkg.sh {{ version }}:
   cmd.run:
@@ -33,7 +33,7 @@ kubeadm init:
     - source: {{ relfile('kube-router-kubeadm-all-features.yaml') }}
     - template: jinja
     - makedirs: True
-    - mode: 0640
+    - mode: "0640"
     - user: root
     - group: root
     - require:
@@ -92,7 +92,7 @@ install cilium via helm:
       - kubeProxyReplacement=strict
       - loadBalancer.mode=dsr
       - loadBalancer.algorithm=maglev
-      - k8sServiceHost={{mainip}}
+      - k8sServiceHost={{ mainip }}
       - k8sServicePort=6443
     - require:
       - helm: cilium_repo

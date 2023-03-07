@@ -1,7 +1,7 @@
 {% from slspath ~ '/macros.jinja' import deploysshkeys, relfile, servicecmd, proxysource with context %}
 
 include:
- - {{ slsdotpath }}.control-plane
+- {{ slsdotpath }}.control-plane
 
 {%- set mainip = salt['pillar.get']('k8s:networking:vip', salt['pillar.get']('k8s:control-plane:0:ip')) %}
 
@@ -14,8 +14,8 @@ include:
 
 pki:
   cmd.run:
-   - name: ssh -i /root/.ssh/k8s_install -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@{{ mainip }} tar -cf - -C /etc/kubernetes/ admin.conf pki/{front-proxy-ca,{etcd/c,c}a}.{crt,key} pki/sa.{key,pub} | tar -xvf - -C /etc/kubernetes
-   - unless:
+    - name: ssh -i /root/.ssh/k8s_install -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@{{ mainip }} tar -cf - -C /etc/kubernetes/ admin.conf pki/{front-proxy-ca,{etcd/c,c}a}.{crt,key} pki/sa.{key,pub} | tar -xvf - -C /etc/kubernetes
+    - unless:
       - cd /etc/kubernetes; ls admin.conf pki/{front-proxy-ca,{etcd/c,c}a}.{crt,key} pki/sa.{key,pub} > /dev/null 2>&1
 #   - require:
 #     - ssh_known_hosts: main ip in known_host
@@ -33,13 +33,13 @@ install kube binnaries according VIP version:
 
 join main server:
   cmd.run:
-   - name: |
-       echo Getting the token and joining the cluster
-       JOIN_CMD=$(ssh -i /root/.ssh/k8s_join -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$MAINIP)
-       $JOIN_CMD --control-plane
-   - env:
-     - MAINIP: {{ mainip }}
-   - require:
-     - cmd: pki
-     - cmd: install kube binnaries according VIP version
-   - unless: test -f /etc/kubernetes/manifests/kube-apiserver.yaml -a -f /etc/kubernetes/manifests/kube-controller-manager.yaml -a -f /etc/kubernetes/manifests/kube-scheduler.yaml
+    - name: |
+        echo Getting the token and joining the cluster
+        JOIN_CMD=$(ssh -i /root/.ssh/k8s_join -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$MAINIP)
+        $JOIN_CMD --control-plane
+    - env:
+      - MAINIP: {{ mainip }}
+    - require:
+      - cmd: pki
+      - cmd: install kube binnaries according VIP version
+    - unless: test -f /etc/kubernetes/manifests/kube-apiserver.yaml -a -f /etc/kubernetes/manifests/kube-controller-manager.yaml -a -f /etc/kubernetes/manifests/kube-scheduler.yaml

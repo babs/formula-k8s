@@ -1,9 +1,9 @@
 {% from slspath ~ '/macros.jinja' import relfile, debsource with context %}
 
-{% set version = salt['pillar.get']('k8s:version', '1.23.4-00')%}
+{% set version = salt['pillar.get']('k8s:version', '1.23.4-00') %}
 
 include:
- - {{ slsdotpath }}.containerd
+- {{ slsdotpath }}.containerd
 
 swapoff:
   cmd.run:
@@ -52,9 +52,9 @@ net.ipv4.ip_forward:
 
 k8s pkg requirements:
   pkg.installed:
-   - pkgs:
-     - ipvsadm
-     - jq
+    - pkgs:
+      - ipvsadm
+      - jq
 
 {%- if salt['pillar.get']('k8s:networking:podSubnet:v6') %}
 net.ipv6.conf.all.forwarding:
@@ -66,7 +66,7 @@ k8s-tools:
   file.recurse:
     - source: {{ relfile("tools") }}
     - name: /opt/k8s-tools/
-    - file_mode: 755
+    - file_mode: "0755"
     - makedirs: true
     - clean: true
     - require:
@@ -77,7 +77,7 @@ k8s-tools:
   file.managed:
     - user: root
     - group: root
-    - mode: 600
+    - mode: "0600"
     - contents_pillar: ssh:user:k8s_{{ keytype }}:key
     - require_in:
       - file: k8s-tools
@@ -86,7 +86,7 @@ k8s-tools:
   file.managed:
     - user: root
     - group: root
-    - mode: 600
+    - mode: "0600"
     - contents_pillar: ssh:user:k8s_{{ keytype }}:pub
     - require_in:
       - file: k8s-tools

@@ -1,5 +1,5 @@
 include:
- - {{ slsdotpath }}.base
+- {{ slsdotpath }}.base
 
 {%- set mainip = salt['pillar.get']('k8s:networking:vip', salt['pillar.get']('k8s:control-plane:0:ip')) %}
 
@@ -23,12 +23,12 @@ install kube binnaries according VIP version:
 
 join main server:
   cmd.run:
-   - name: |
-       echo Getting the token and joining the cluster
-       JOIN_CMD=$(ssh -i /root/.ssh/k8s_join -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$MAINIP)
-       $JOIN_CMD
-   - env:
-     - MAINIP: {{ mainip }}
-   - unless: test -f /etc/kubernetes/kubelet.conf -a -f /etc/kubernetes/pki/ca.crt
-   - require:
-     - cmd: install kube binnaries according VIP version
+    - name: |
+        echo Getting the token and joining the cluster
+        JOIN_CMD=$(ssh -i /root/.ssh/k8s_join -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$MAINIP)
+        $JOIN_CMD
+    - env:
+      - MAINIP: {{ mainip }}
+    - unless: test -f /etc/kubernetes/kubelet.conf -a -f /etc/kubernetes/pki/ca.crt
+    - require:
+      - cmd: install kube binnaries according VIP version

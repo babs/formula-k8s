@@ -1,9 +1,9 @@
 {% from slspath ~ '/macros.jinja' import relfile with context %}
-{% set version = salt['pillar.get']('k8s:version', '1.23.4-00')%}
+{% set version = salt['pillar.get']('k8s:version', '1.23.4-00') %}
 
 include:
- - {{ slsdotpath }}.base
- - {{ slsdotpath }}.helm
+- {{ slsdotpath }}.base
+- {{ slsdotpath }}.helm
 
 {% if salt['pillar.get']("k8s:networking:vip") and salt['pillar.get']("k8s:networking:vipProvider", "kube-vip") == "kube-vip" %}
 /etc/kubernetes/manifests/kube-vip.yaml:
@@ -13,7 +13,7 @@ include:
     - makedirs: True
     - user: root
     - group: root
-    - mode: 644
+    - mode: "0644"
 {% endif %}
 
 /root/.kube/config:
@@ -22,20 +22,20 @@ include:
     - makedirs: True
     - user: root
     - group: root
-    - mode: 755
+    - mode: "0755"
 
 /root/.ssh/k8s_install:
   file.managed:
     - user: root
     - group: root
-    - mode: 600
+    - mode: "0600"
     - contents_pillar: ssh:user:k8s_install:key
 
 /root/.ssh/k8s_install.pub:
   file.managed:
     - user: root
     - group: root
-    - mode: 600
+    - mode: "0600"
     - contents_pillar: ssh:user:k8s_install:pub
 
 /root/.ssh/authorized_keys k8s_install:
