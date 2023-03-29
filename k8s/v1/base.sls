@@ -55,6 +55,7 @@ k8s pkg requirements:
     - pkgs:
       - ipvsadm
       - jq
+      - ceph-common
 
 {%- if salt['pillar.get']('k8s:networking:podSubnet:v6') %}
 net.ipv6.conf.all.forwarding:
