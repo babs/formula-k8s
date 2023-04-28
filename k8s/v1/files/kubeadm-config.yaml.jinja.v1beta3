@@ -13,7 +13,6 @@ controllerManager:
   extraArgs:
     node-monitor-grace-period: 16s
     node-monitor-period: 2s
-    pod-eviction-timeout: 30s
 {%- if salt['pillar.get']("k8s:networking:podSubnet:v6") %}
     node-cidr-mask-size-ipv6: "112"
 {%- endif %}
