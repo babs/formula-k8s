@@ -1,4 +1,9 @@
-# Common functions
+{#
+Use as:
+
+  {% from slspath ~ '/macros.jinja' import relfile with context %}
+
+#}
 
 {%- macro debsource(reponame, url, distribution, components, keyfilename=None, archs=[], with_src=False) %}
 {%- set opts_list=[] %}

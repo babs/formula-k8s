@@ -1,5 +1,4 @@
 {% from slspath ~ '/macros.jinja' import relfile with context %}
-{% set version = salt['pillar.get']('k8s:version', '1.23.4-00') %}
 
 include:
 - {{ slsdotpath }}.base

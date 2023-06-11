@@ -1,6 +1,3 @@
-{%- set version = salt['pillar.get']('k8s:version', '1.25.4-00') %}
-
-
 {%- set ns = namespace() %}
 {%- set ns.node_recipe = None %}
 
