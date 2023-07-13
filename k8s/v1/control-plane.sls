@@ -15,6 +15,15 @@ include:
     - mode: "0644"
 {% endif %}
 
+/etc/kubernetes/kubeadm/kubeadm-config.yaml:
+  file.managed:
+    - source: {{ relfile('kubeadm-config.yaml.jinja.v1beta3') }}
+    - template: jinja
+    - makedirs: True
+    - user: root
+    - group: root
+    - mode: "0644"
+
 /root/.kube/config:
   file.symlink:
     - target: /etc/kubernetes/admin.conf

@@ -4,15 +4,6 @@
 include:
 - {{ slsdotpath }}.control-plane
 
-/etc/kubernetes/kubeadm/kubeadm-config.yaml:
-  file.managed:
-    - source: {{ relfile('kubeadm-config.yaml.jinja.v1beta3') }}
-    - template: jinja
-    - makedirs: True
-    - user: root
-    - group: root
-    - mode: "0644"
-
 /opt/k8s-tools/install-update-pkg.sh {{ version }}:
   cmd.run:
     - unless:
