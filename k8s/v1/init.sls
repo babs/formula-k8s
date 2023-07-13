@@ -23,3 +23,6 @@ include:
   test.fail_without_changes:
     - order: last
 {%-   endif %}
+
+formula k8s.v1.init:
+  test.nop: []
