@@ -10,11 +10,10 @@ swapoff:
     - name: swapoff -a
     - unless: test $(cat /proc/swaps | wc -l) -eq 1
 
-  file.comment:
+  file.replace:
     - name: /etc/fstab
-    - regex: "^[^#].* swap .*"
-    - char: '#'
-    - unless: test $(cat /proc/swaps | wc -l) -eq 1
+    - pattern: "^[^#](.* swap .*)"
+    - repl: '#\1'
 
 /sys/fs/bpf:
   mount.mounted:
