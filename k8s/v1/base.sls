@@ -1,6 +1,7 @@
 {% from slspath ~ '/macros.jinja' import relfile, debsource with context %}
 
-{% set version = salt['pillar.get']('k8s:version', '1.23.4-00') %}
+{%- set version = salt['pillar.get']('k8s:version', '1.23.4-00') %}
+{%- set version_minor = version.split('.')[0:2] | join('.') %}
 
 include:
 - {{ slsdotpath }}.containerd
@@ -41,13 +42,16 @@ net.ipv4.ip_forward:
 
 {{
   debsource(
-    "kubernetes",
-    "https://apt.kubernetes.io",
-    "kubernetes-xenial",
-    "main",
+    "kubernetes-v" ~ version_minor,
+    "https://pkgs.k8s.io/core:/stable:/v" ~ version_minor ~ "/deb/",
+    "/",
+    "",
     "kubernetes-archive-keyring.gpg",
   )
 }}
+
+/etc/apt/sources.list.d/kubernetes.list:
+  file.absent: []
 
 k8s pkg requirements:
   pkg.installed:
@@ -70,7 +74,7 @@ k8s-tools:
     - makedirs: true
     - clean: true
     - require:
-      - pkgrepo: kubernetes repository
+      - pkgrepo: kubernetes-v{{ version_minor }} repository
 
 {% for keytype in ['join', 'version'] %}
 /root/.ssh/k8s_{{ keytype }}:
