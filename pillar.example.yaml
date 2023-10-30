@@ -62,7 +62,7 @@ k8s:
         chart: metallb/metallb
         namespace: metallb-system
         flags:
-         - create-namespace
+          - create-namespace
 
     cert-manager:
       repo:
@@ -112,3 +112,13 @@ k8s:
           - securityContext.runAsGroup=0
           - securityContext.runAsNonRoot=false
           - securityContext.runAsUser=0
+
+containerd:
+  oci mirrors:
+    docker.io:
+      content: |
+          server = "https://docker.io"
+
+          [host."http://my.local.registry.for.docker.io:5000"]
+            capabilities = ["pull", "resolve"]
+            skip_verify = true
